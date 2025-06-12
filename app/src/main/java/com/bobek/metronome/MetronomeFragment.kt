@@ -56,200 +56,200 @@ private const val LARGE_TEMPO_CHANGE_SIZE = 10
 
 class MetronomeFragment : Fragment() {
 
-    private val viewModel: MetronomeViewModel by activityViewModels()
-    private val tickReceiver = TickReceiver()
+	private val viewModel: MetronomeViewModel by activityViewModels()
+	private val tickReceiver = TickReceiver()
 
-    private var binding: FragmentMetronomeBinding? = null
-    private var lastTap: Long = 0
+	private var binding: FragmentMetronomeBinding? = null
+	private var lastTap: Long = 0
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        binding = FragmentMetronomeBinding.inflate(inflater, container, false)
-        return requireBinding().root
-    }
+	override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+		binding = FragmentMetronomeBinding.inflate(inflater, container, false)
+		return requireBinding().root
+	}
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        initViewModel()
-        initBinding()
-        adjustLayoutToSystemBars()
-        registerTickReceiver()
-        setupMenu()
-    }
+	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+		super.onViewCreated(view, savedInstanceState)
+		initViewModel()
+		initBinding()
+		adjustLayoutToSystemBars()
+		registerTickReceiver()
+		setupMenu()
+	}
 
-    private fun initViewModel() {
-        viewModel.playing.observe(viewLifecycleOwner) { playing ->
-            if (playing) keepScreenOn() else doNotKeepScreenOn()
-        }
-    }
+	private fun initViewModel() {
+		viewModel.playing.observe(viewLifecycleOwner) { playing ->
+			if (playing) keepScreenOn() else doNotKeepScreenOn()
+		}
+	}
 
-    private fun keepScreenOn() {
-        getKeepScreenOnView().keepScreenOn = true
-    }
+	private fun keepScreenOn() {
+		getKeepScreenOnView().keepScreenOn = true
+	}
 
-    private fun doNotKeepScreenOn() {
-        getKeepScreenOnView().keepScreenOn = false
-    }
+	private fun doNotKeepScreenOn() {
+		getKeepScreenOnView().keepScreenOn = false
+	}
 
-    private fun getKeepScreenOnView() = requireBinding().content.startStopButton
+	private fun getKeepScreenOnView() = requireBinding().content.startStopButton
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun initBinding() {
-        val binding = requireBinding()
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.metronome = viewModel
+	@SuppressLint("ClickableViewAccessibility")
+	private fun initBinding() {
+		val binding = requireBinding()
+		binding.lifecycleOwner = viewLifecycleOwner
+		binding.metronome = viewModel
 
-        binding.content.incrementTempoButton.setOnClickListener { incrementTempo() }
-        binding.content.incrementTempoButton.setOnLongClickListener {
-            repeat(LARGE_TEMPO_CHANGE_SIZE) { incrementTempo() }
-            true
-        }
+		binding.content.incrementTempoButton.setOnClickListener { incrementTempo() }
+		binding.content.incrementTempoButton.setOnLongClickListener {
+			repeat(LARGE_TEMPO_CHANGE_SIZE) { incrementTempo() }
+			true
+		}
 
-        binding.content.decrementTempoButton.setOnClickListener { decrementTempo() }
-        binding.content.decrementTempoButton.setOnLongClickListener {
-            repeat(LARGE_TEMPO_CHANGE_SIZE) { decrementTempo() }
-            true
-        }
+		binding.content.decrementTempoButton.setOnClickListener { decrementTempo() }
+		binding.content.decrementTempoButton.setOnLongClickListener {
+			repeat(LARGE_TEMPO_CHANGE_SIZE) { decrementTempo() }
+			true
+		}
 
-        binding.content.tapTempoButton.setOnClickListener { tapTempo() }
-        binding.content.tapTempoButton.setOnTouchListener { view, event -> tapTempoOnTouchListener(view, event) }
-    }
+		binding.content.tapTempoButton.setOnClickListener { tapTempo() }
+		binding.content.tapTempoButton.setOnTouchListener { view, event -> tapTempoOnTouchListener(view, event) }
+	}
 
-    private fun incrementTempo() {
-        viewModel.tempoData.value?.value?.let {
-            if (it < Tempo.MAX) {
-                viewModel.tempoData.value = Tempo(it + 1)
-            }
-        }
-    }
+	private fun incrementTempo() {
+		viewModel.tempoData.value?.value?.let {
+			if (it < Tempo.MAX) {
+				viewModel.tempoData.value = Tempo(it + 1)
+			}
+		}
+	}
 
-    private fun decrementTempo() {
-        viewModel.tempoData.value?.value?.let {
-            if (it > Tempo.MIN) {
-                viewModel.tempoData.value = Tempo(it - 1)
-            }
-        }
-    }
+	private fun decrementTempo() {
+		viewModel.tempoData.value?.value?.let {
+			if (it > Tempo.MIN) {
+				viewModel.tempoData.value = Tempo(it - 1)
+			}
+		}
+	}
 
-    private fun tapTempo() {
-        val currentTime = System.currentTimeMillis()
-        val tempoValue = calculateTapTempo(lastTap, currentTime)
+	private fun tapTempo() {
+		val currentTime = System.currentTimeMillis()
+		val tempoValue = calculateTapTempo(lastTap, currentTime)
 
-        if (tempoValue > Tempo.MAX) {
-            viewModel.tempoData.value = Tempo(Tempo.MAX)
-        } else if (tempoValue >= Tempo.MIN) {
-            viewModel.tempoData.value = Tempo(tempoValue)
-        }
+		if (tempoValue > Tempo.MAX) {
+			viewModel.tempoData.value = Tempo(Tempo.MAX)
+		} else if (tempoValue >= Tempo.MIN) {
+			viewModel.tempoData.value = Tempo(tempoValue)
+		}
 
-        lastTap = currentTime
-    }
+		lastTap = currentTime
+	}
 
-    private fun calculateTapTempo(firstTap: Long, secondTap: Long): Int = (60_000 / (secondTap - firstTap)).toInt()
+	private fun calculateTapTempo(firstTap: Long, secondTap: Long): Int = (60_000 / (secondTap - firstTap)).toInt()
 
-    private fun tapTempoOnTouchListener(view: View, event: MotionEvent): Boolean {
-        when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                view.isPressed = true
-                view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-                view.performClick()
-            }
+	private fun tapTempoOnTouchListener(view: View, event: MotionEvent): Boolean {
+		when (event.action) {
+			MotionEvent.ACTION_DOWN -> {
+				view.isPressed = true
+				view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+				view.performClick()
+			}
 
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                view.isPressed = false
-            }
-        }
+			MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+				view.isPressed = false
+			}
+		}
 
-        return true
-    }
+		return true
+	}
 
-    private fun adjustLayoutToSystemBars() {
-        ViewCompat.setOnApplyWindowInsetsListener(requireBinding().content.root) { view, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = insets.left
-                rightMargin = insets.right
-                bottomMargin = insets.bottom
-            }
-            WindowInsetsCompat.CONSUMED
-        }
-    }
+	private fun adjustLayoutToSystemBars() {
+		ViewCompat.setOnApplyWindowInsetsListener(requireBinding().content.root) { view, windowInsets ->
+			val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
+			view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+				leftMargin = insets.left
+				rightMargin = insets.right
+				bottomMargin = insets.bottom
+			}
+			WindowInsetsCompat.CONSUMED
+		}
+	}
 
-    private fun registerTickReceiver() {
-        LocalBroadcastManager.getInstance(requireContext())
-            .registerReceiver(tickReceiver, IntentFilter(MetronomeService.ACTION_TICK))
-        Log.d(TAG, "Registered tickReceiver")
-    }
+	private fun registerTickReceiver() {
+		LocalBroadcastManager.getInstance(requireContext())
+			.registerReceiver(tickReceiver, IntentFilter(MetronomeService.ACTION_TICK))
+		Log.d(TAG, "Registered tickReceiver")
+	}
 
-    private fun setupMenu() {
-        requireActivity().addMenuProvider(getMenuProvider(), viewLifecycleOwner, Lifecycle.State.RESUMED)
-    }
+	private fun setupMenu() {
+		requireActivity().addMenuProvider(getMenuProvider(), viewLifecycleOwner, Lifecycle.State.RESUMED)
+	}
 
-    private fun getMenuProvider() = object : MenuProvider {
+	private fun getMenuProvider() = object : MenuProvider {
 
-        override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-            menuInflater.inflate(R.menu.menu_metronome, menu)
-        }
+		override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+			menuInflater.inflate(R.menu.menu_metronome, menu)
+		}
 
-        override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-            return when (menuItem.itemId) {
-                R.id.action_settings -> {
-                    showSettings()
-                    true
-                }
+		override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+			return when (menuItem.itemId) {
+				R.id.action_settings -> {
+					showSettings()
+					true
+				}
 
-                else -> false
-            }
-        }
-    }
+				else -> false
+			}
+		}
+	}
 
-    private fun showSettings() {
-        findNavController().navigate(R.id.action_MetronomeFragment_to_SettingsFragment)
-    }
+	private fun showSettings() {
+		findNavController().navigate(R.id.action_MetronomeFragment_to_SettingsFragment)
+	}
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding = null
-        unregisterTickReceiver()
-    }
+	override fun onDestroyView() {
+		super.onDestroyView()
+		binding = null
+		unregisterTickReceiver()
+	}
 
-    private fun unregisterTickReceiver() {
-        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(tickReceiver)
-        Log.d(TAG, "Unregistered tickReceiver")
-    }
+	private fun unregisterTickReceiver() {
+		LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(tickReceiver)
+		Log.d(TAG, "Unregistered tickReceiver")
+	}
 
-    inner class TickReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            extractTick(intent)
-                ?.also { tick -> Log.v(TAG, "Received $tick") }
-                ?.also { tick -> visualizeTick(tick) }
-        }
-    }
+	inner class TickReceiver : BroadcastReceiver() {
+		override fun onReceive(context: Context, intent: Intent) {
+			extractTick(intent)
+				?.also { tick -> Log.v(TAG, "Received $tick") }
+				?.also { tick -> visualizeTick(tick) }
+		}
+	}
 
-    private fun extractTick(intent: Intent): Tick? {
-        return if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-            intent.getParcelableExtra(MetronomeService.EXTRA_TICK, Tick::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent.getParcelableExtra(MetronomeService.EXTRA_TICK)
-        }
-    }
+	private fun extractTick(intent: Intent): Tick? {
+		return if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+			intent.getParcelableExtra(MetronomeService.EXTRA_TICK, Tick::class.java)
+		} else {
+			@Suppress("DEPRECATION")
+			intent.getParcelableExtra(MetronomeService.EXTRA_TICK)
+		}
+	}
 
-    private fun visualizeTick(tick: Tick) {
-        if (tick.type == TickType.STRONG || tick.type == TickType.WEAK) {
-            getTickVisualization(tick.beat)?.blink()
-        }
-    }
+	private fun visualizeTick(tick: Tick) {
+		if (tick.type == TickType.STRONG || tick.type == TickType.WEAK) {
+			getTickVisualization(tick.beat)?.blink()
+		}
+	}
 
-    private fun getTickVisualization(beat: Int): TickVisualization? = when (beat) {
-        1 -> requireBinding().content.tickVisualization1
-        2 -> requireBinding().content.tickVisualization2
-        3 -> requireBinding().content.tickVisualization3
-        4 -> requireBinding().content.tickVisualization4
-        5 -> requireBinding().content.tickVisualization5
-        6 -> requireBinding().content.tickVisualization6
-        7 -> requireBinding().content.tickVisualization7
-        8 -> requireBinding().content.tickVisualization8
-        else -> null
-    }
+	private fun getTickVisualization(beat: Int): TickVisualization? = when (beat) {
+		1 -> requireBinding().content.tickVisualization1
+		2 -> requireBinding().content.tickVisualization2
+		3 -> requireBinding().content.tickVisualization3
+		4 -> requireBinding().content.tickVisualization4
+		5 -> requireBinding().content.tickVisualization5
+		6 -> requireBinding().content.tickVisualization6
+		7 -> requireBinding().content.tickVisualization7
+		8 -> requireBinding().content.tickVisualization8
+		else -> null
+	}
 
-    private fun requireBinding(): FragmentMetronomeBinding = binding!!
+	private fun requireBinding(): FragmentMetronomeBinding = binding!!
 }

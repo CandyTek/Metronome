@@ -53,246 +53,242 @@ private const val TAG = "MainActivity"
 
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel: MetronomeViewModel by viewModels()
-    private val postNotificationsPermissionRequest = registerPostNotificationsPermissionRequest()
-    private val metronomeServiceConnection = MetronomeServiceConnection()
-    private val refreshReceiver = RefreshReceiver()
+	private val viewModel: MetronomeViewModel by viewModels()
+	private val postNotificationsPermissionRequest = registerPostNotificationsPermissionRequest()
+	private val metronomeServiceConnection = MetronomeServiceConnection()
+	private val refreshReceiver = RefreshReceiver()
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var preferenceStore: PreferenceStore
+	private lateinit var binding: ActivityMainBinding
+	private lateinit var appBarConfiguration: AppBarConfiguration
+	private lateinit var preferenceStore: PreferenceStore
 
-    private var metronomeService: MetronomeService? = null
+	private var metronomeService: MetronomeService? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(TAG, "Lifecycle: onCreate")
-        super.onCreate(savedInstanceState)
+	override fun onCreate(savedInstanceState: Bundle?) {
+		Log.d(TAG, "Lifecycle: onCreate")
+		super.onCreate(savedInstanceState)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        setSupportActionBar(binding.toolbar)
+		binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+		setSupportActionBar(binding.toolbar)
 
-        val navController = getNavController()
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
+		val navController = getNavController()
+		appBarConfiguration = AppBarConfiguration(navController.graph)
+		setupActionBarWithNavController(navController, appBarConfiguration)
 
-        initPreferenceStore()
-        initViewModel()
-        registerRefreshReceiver()
-    }
+		initPreferenceStore()
+		initViewModel()
+		registerRefreshReceiver()
+	}
 
-    private fun initPreferenceStore() {
-        preferenceStore = PreferenceStore(this, lifecycle)
-        preferenceStore.beats.observe(this) { viewModel.beatsData.value = it }
-        preferenceStore.subdivisions.observe(this) { viewModel.subdivisionsData.value = it }
-        preferenceStore.gaps.observe(this) { viewModel.gapsData.value = it }
-        preferenceStore.tempo.observe(this) { viewModel.tempoData.value = it }
-        preferenceStore.emphasizeFirstBeat.observe(this) { viewModel.emphasizeFirstBeat.value = it }
-        preferenceStore.sound.observe(this) { viewModel.sound.value = it }
-        preferenceStore.nightMode.observe(this) { setNightMode(it) }
-    }
+	private fun initPreferenceStore() {
+		preferenceStore = PreferenceStore(this, lifecycle)
+		preferenceStore.beats.observe(this) { viewModel.beatsData.value = it }
+		preferenceStore.subdivisions.observe(this) { viewModel.subdivisionsData.value = it }
+		preferenceStore.gaps.observe(this) { viewModel.gapsData.value = it }
+		preferenceStore.tempo.observe(this) { viewModel.tempoData.value = it }
+		preferenceStore.emphasizeFirstBeat.observe(this) { viewModel.emphasizeFirstBeat.value = it }
+		preferenceStore.sound.observe(this) { viewModel.sound.value = it }
+		preferenceStore.nightMode.observe(this) { setNightMode(it) }
+	}
 
-    private fun setNightMode(appNightMode: AppNightMode) {
-        Log.d(TAG, "Setting night mode to $appNightMode")
-        setDefaultNightMode(appNightMode.systemValue)
-    }
+	private fun setNightMode(appNightMode: AppNightMode) {
+		Log.d(TAG, "Setting night mode to $appNightMode")
+		setDefaultNightMode(appNightMode.systemValue)
+	}
 
-    private fun initViewModel() {
-        viewModel.beatsData.observe(this) { metronomeService?.beats = it }
-        viewModel.subdivisionsData.observe(this) { metronomeService?.subdivisions = it }
-        viewModel.gapsData.observe(this) { metronomeService?.gaps = it }
-        viewModel.tempoData.observe(this) { metronomeService?.tempo = it }
-        viewModel.emphasizeFirstBeat.observe(this) { metronomeService?.emphasizeFirstBeat = it }
-        viewModel.sound.observe(this) { metronomeService?.sound = it }
-        viewModel.playing.observe(this) { metronomeService?.playing = it }
-    }
+	private fun initViewModel() {
+		viewModel.beatsData.observe(this) { metronomeService?.beats = it }
+		viewModel.subdivisionsData.observe(this) { metronomeService?.subdivisions = it }
+		viewModel.gapsData.observe(this) { metronomeService?.gaps = it }
+		viewModel.tempoData.observe(this) { metronomeService?.tempo = it }
+		viewModel.emphasizeFirstBeat.observe(this) { metronomeService?.emphasizeFirstBeat = it }
+		viewModel.sound.observe(this) { metronomeService?.sound = it }
+		viewModel.playing.observe(this) { metronomeService?.playing = it }
+	}
 
-    private fun registerRefreshReceiver() {
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(refreshReceiver, IntentFilter(MetronomeService.ACTION_REFRESH))
-        Log.d(TAG, "Registered refreshReceiver")
-    }
+	private fun registerRefreshReceiver() {
+		LocalBroadcastManager.getInstance(this)
+			.registerReceiver(refreshReceiver, IntentFilter(MetronomeService.ACTION_REFRESH))
+		Log.d(TAG, "Registered refreshReceiver")
+	}
 
-    override fun onStart() {
-        Log.d(TAG, "Lifecycle: onStart")
-        super.onStart()
-    }
+	override fun onStart() {
+		Log.d(TAG, "Lifecycle: onStart")
+		super.onStart()
+	}
 
-    override fun onResume() {
-        Log.d(TAG, "Lifecycle: onResume")
-        super.onResume()
+	override fun onResume() {
+		Log.d(TAG, "Lifecycle: onResume")
+		super.onResume()
 
-        if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
-            handlePostNotificationsPermission()
-        }
+		if (VERSION.SDK_INT >= VERSION_CODES.TIRAMISU) {
+			handlePostNotificationsPermission()
+		}
 
-        startAndBindToMetronomeService()
-    }
+		startAndBindToMetronomeService()
+	}
 
-    @RequiresApi(VERSION_CODES.TIRAMISU)
-    private fun handlePostNotificationsPermission() {
-        if (neverRequestedPostNotificationsPermission() && postNotificationsPermissionNotGranted()) {
-            startPostNotificationsPermissionRequestWorkflow()
-        }
-    }
+	@RequiresApi(VERSION_CODES.TIRAMISU)
+	private fun handlePostNotificationsPermission() {
+		if (neverRequestedPostNotificationsPermission() && postNotificationsPermissionNotGranted()) {
+			startPostNotificationsPermissionRequestWorkflow()
+		}
+	}
 
-    private fun neverRequestedPostNotificationsPermission() =
-        preferenceStore.postNotificationsPermissionRequested.value == false
+	private fun neverRequestedPostNotificationsPermission() =
+		preferenceStore.postNotificationsPermissionRequested.value == false
 
-    @RequiresApi(VERSION_CODES.TIRAMISU)
-    private fun postNotificationsPermissionNotGranted() =
-        checkSelfPermission(POST_NOTIFICATIONS) == PERMISSION_DENIED
+	@RequiresApi(VERSION_CODES.TIRAMISU)
+	private fun postNotificationsPermissionNotGranted() =
+		checkSelfPermission(POST_NOTIFICATIONS) == PERMISSION_DENIED
 
-    @RequiresApi(VERSION_CODES.TIRAMISU)
-    private fun startPostNotificationsPermissionRequestWorkflow() {
-        if (shouldShowRequestPermissionRationale(POST_NOTIFICATIONS)) {
-            showRequestNotificationsPermissionRationale()
-        } else {
-            launchPostNotificationsPermissionRequest()
-        }
-    }
+	@RequiresApi(VERSION_CODES.TIRAMISU)
+	private fun startPostNotificationsPermissionRequestWorkflow() {
+		if (shouldShowRequestPermissionRationale(POST_NOTIFICATIONS)) {
+			showRequestNotificationsPermissionRationale()
+		} else {
+			launchPostNotificationsPermissionRequest()
+		}
+	}
 
-    @RequiresApi(VERSION_CODES.TIRAMISU)
-    private fun showRequestNotificationsPermissionRationale() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.request_notifications_permission_rationale_title)
-            .setMessage(R.string.request_notifications_permission_rationale_message)
-            .setCancelable(false)
-            .setPositiveButton(R.string.ok) { dialog, _ ->
-                launchPostNotificationsPermissionRequest()
-                dialog.dismiss()
-            }
-            .setNegativeButton(R.string.no_thanks) { dialog, _ ->
-                Log.i(TAG, "Continuing without requesting POST_NOTIFICATIONS permission")
-                preferenceStore.postNotificationsPermissionRequested.value = true
-                dialog.dismiss()
-            }
-            .show()
-    }
+	@RequiresApi(VERSION_CODES.TIRAMISU)
+	private fun showRequestNotificationsPermissionRationale() {
+		MaterialAlertDialogBuilder(this)
+			.setTitle(R.string.request_notifications_permission_rationale_title)
+			.setMessage(R.string.request_notifications_permission_rationale_message)
+			.setCancelable(false)
+			.setPositiveButton(R.string.ok) { dialog, _ ->
+				launchPostNotificationsPermissionRequest()
+				dialog.dismiss()
+			}
+			.setNegativeButton(R.string.no_thanks) { dialog, _ ->
+				Log.i(TAG, "Continuing without requesting POST_NOTIFICATIONS permission")
+				preferenceStore.postNotificationsPermissionRequested.value = true
+				dialog.dismiss()
+			}
+			.show()
+	}
 
-    @RequiresApi(VERSION_CODES.TIRAMISU)
-    private fun launchPostNotificationsPermissionRequest() {
-        Log.i(TAG, "Requesting POST_NOTIFICATIONS permission")
-        postNotificationsPermissionRequest.launch(POST_NOTIFICATIONS)
-    }
+	@RequiresApi(VERSION_CODES.TIRAMISU)
+	private fun launchPostNotificationsPermissionRequest() {
+		Log.i(TAG, "Requesting POST_NOTIFICATIONS permission")
+		postNotificationsPermissionRequest.launch(POST_NOTIFICATIONS)
+	}
 
-    private fun startAndBindToMetronomeService() {
-        Intent(this, MetronomeService::class.java)
-            .also { service -> startService(service) }
-            .also { Log.d(TAG, "MetronomeService started") }
-            .also { service -> bindService(service, metronomeServiceConnection, BIND_AUTO_CREATE or BIND_ABOVE_CLIENT) }
-            .also { Log.d(TAG, "MetronomeService binding") }
-    }
+	private fun startAndBindToMetronomeService() {
+		Intent(this, MetronomeService::class.java)
+			.also { service -> startService(service) }
+			.also { Log.d(TAG, "MetronomeService started") }
+			.also { service -> bindService(service, metronomeServiceConnection, BIND_AUTO_CREATE or BIND_ABOVE_CLIENT) }
+			.also { Log.d(TAG, "MetronomeService binding") }
+	}
 
-    override fun onPause() {
-        Log.d(TAG, "Lifecycle: onPause")
-        super.onPause()
-        unbindFromMetronomeService()
-    }
+	override fun onPause() {
+		Log.d(TAG, "Lifecycle: onPause")
+		super.onPause()
+		unbindFromMetronomeService()
+	}
 
-    private fun unbindFromMetronomeService() {
-        Intent(this, MetronomeService::class.java).also { unbindService(metronomeServiceConnection) }
-        Log.d(TAG, "MetronomeService unbound")
-    }
+	private fun unbindFromMetronomeService() {
+		Intent(this, MetronomeService::class.java).also { unbindService(metronomeServiceConnection) }
+		Log.d(TAG, "MetronomeService unbound")
+	}
 
-    override fun onStop() {
-        Log.d(TAG, "Lifecycle: onStop")
-        super.onStop()
-        updatePreferenceStore()
-    }
+	override fun onStop() {
+		Log.d(TAG, "Lifecycle: onStop")
+		super.onStop()
+		updatePreferenceStore()
+	}
 
-    private fun updatePreferenceStore() {
-        preferenceStore.beats.value = viewModel.beatsData.value
-        preferenceStore.subdivisions.value = viewModel.subdivisionsData.value
-        preferenceStore.gaps.value = viewModel.gapsData.value
-        preferenceStore.tempo.value = viewModel.tempoData.value
-        preferenceStore.emphasizeFirstBeat.value = viewModel.emphasizeFirstBeat.value
-        preferenceStore.sound.value = viewModel.sound.value
-        Log.d(TAG, "Updated preference store")
-    }
+	private fun updatePreferenceStore() {
+		preferenceStore.beats.value = viewModel.beatsData.value
+		preferenceStore.subdivisions.value = viewModel.subdivisionsData.value
+		preferenceStore.gaps.value = viewModel.gapsData.value
+		preferenceStore.tempo.value = viewModel.tempoData.value
+		preferenceStore.emphasizeFirstBeat.value = viewModel.emphasizeFirstBeat.value
+		preferenceStore.sound.value = viewModel.sound.value
+		Log.d(TAG, "Updated preference store")
+	}
 
-    override fun onDestroy() {
-        Log.d(TAG, "Lifecycle: onDestroy")
-        super.onDestroy()
-        unregisterRefreshReceiver()
-    }
+	override fun onDestroy() {
+		Log.d(TAG, "Lifecycle: onDestroy")
+		super.onDestroy()
+		unregisterRefreshReceiver()
+	}
 
-    private fun unregisterRefreshReceiver() {
-        LocalBroadcastManager.getInstance(this)
-            .unregisterReceiver(refreshReceiver)
-        Log.d(TAG, "Unregistered refreshReceiver")
-    }
+	private fun unregisterRefreshReceiver() {
+		LocalBroadcastManager.getInstance(this)
+			.unregisterReceiver(refreshReceiver)
+		Log.d(TAG, "Unregistered refreshReceiver")
+	}
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = getNavController()
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
-    }
+	override fun onSupportNavigateUp(): Boolean {
+		val navController = getNavController()
+		return navController.navigateUp(appBarConfiguration)
+				|| super.onSupportNavigateUp()
+	}
 
-    private fun getNavController(): NavController {
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
-        return navHostFragment.navController
-    }
+	private fun getNavController(): NavController {
+		val navHostFragment = supportFragmentManager
+			.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
+		return navHostFragment.navController
+	}
 
+	private fun registerPostNotificationsPermissionRequest() =
+		registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+			if (granted) {
+				Log.i(TAG, "Permission POST_NOTIFICATIONS granted")
+			} else {
+				Log.i(TAG, "Permission POST_NOTIFICATIONS denied")
+				preferenceStore.postNotificationsPermissionRequested.value = true
+			}
+		}
 
-    private fun registerPostNotificationsPermissionRequest() =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                Log.i(TAG, "Permission POST_NOTIFICATIONS granted")
-            } else {
-                Log.i(TAG, "Permission POST_NOTIFICATIONS denied")
-                preferenceStore.postNotificationsPermissionRequested.value = true
-            }
-        }
+	private inner class MetronomeServiceConnection : ServiceConnection {
+		override fun onServiceConnected(name: ComponentName, service: IBinder) {
+			Log.i(TAG, "MetronomeService connected")
+			val binder = service as MetronomeService.LocalBinder
+			metronomeService = binder.getService()
+			viewModel.connected.value = true
+			synchronizeViewModelWithService()
+		}
 
+		override fun onServiceDisconnected(name: ComponentName) {
+			Log.i(TAG, "MetronomeService disconnected")
+			metronomeService = null
+			viewModel.connected.value = false
+		}
+	}
 
-    private inner class MetronomeServiceConnection : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName, service: IBinder) {
-            Log.i(TAG, "MetronomeService connected")
-            val binder = service as MetronomeService.LocalBinder
-            metronomeService = binder.getService()
-            viewModel.connected.value = true
-            synchronizeViewModelWithService()
-        }
+	inner class RefreshReceiver : BroadcastReceiver() {
+		override fun onReceive(context: Context, intent: Intent) {
+			Log.d(TAG, "Received refresh command")
+			synchronizeViewModelWithService()
+		}
+	}
 
-        override fun onServiceDisconnected(name: ComponentName) {
-            Log.i(TAG, "MetronomeService disconnected")
-            metronomeService = null
-            viewModel.connected.value = false
-        }
-    }
+	private fun synchronizeViewModelWithService() {
+		metronomeService?.let { service ->
+			if (service.playing) updateViewModel(service) else initServiceValues(service)
+			viewModel.playing.value = service.playing
+		}
+	}
 
+	private fun updateViewModel(service: MetronomeService) {
+		viewModel.beatsData.value = service.beats
+		viewModel.subdivisionsData.value = service.subdivisions
+		viewModel.gapsData.value = service.gaps
+		viewModel.tempoData.value = service.tempo
+		viewModel.emphasizeFirstBeat.value = service.emphasizeFirstBeat
+		viewModel.sound.value = service.sound
+	}
 
-    inner class RefreshReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            Log.d(TAG, "Received refresh command")
-            synchronizeViewModelWithService()
-        }
-    }
-
-
-    private fun synchronizeViewModelWithService() {
-        metronomeService?.let { service ->
-            if (service.playing) updateViewModel(service) else initServiceValues(service)
-            viewModel.playing.value = service.playing
-        }
-    }
-
-    private fun updateViewModel(service: MetronomeService) {
-        viewModel.beatsData.value = service.beats
-        viewModel.subdivisionsData.value = service.subdivisions
-        viewModel.gapsData.value = service.gaps
-        viewModel.tempoData.value = service.tempo
-        viewModel.emphasizeFirstBeat.value = service.emphasizeFirstBeat
-        viewModel.sound.value = service.sound
-    }
-
-    private fun initServiceValues(service: MetronomeService) {
-        viewModel.beatsData.value?.let { service.beats = it }
-        viewModel.subdivisionsData.value?.let { service.subdivisions = it }
-        viewModel.gapsData.value?.let { service.gaps = it }
-        viewModel.tempoData.value?.let { service.tempo = it }
-        viewModel.emphasizeFirstBeat.value?.let { service.emphasizeFirstBeat = it }
-        viewModel.sound.value?.let { service.sound = it }
-    }
+	private fun initServiceValues(service: MetronomeService) {
+		viewModel.beatsData.value?.let { service.beats = it }
+		viewModel.subdivisionsData.value?.let { service.subdivisions = it }
+		viewModel.gapsData.value?.let { service.gaps = it }
+		viewModel.tempoData.value?.let { service.tempo = it }
+		viewModel.emphasizeFirstBeat.value?.let { service.emphasizeFirstBeat = it }
+		viewModel.sound.value?.let { service.sound = it }
+	}
 }
