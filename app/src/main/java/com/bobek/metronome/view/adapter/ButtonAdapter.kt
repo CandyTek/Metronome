@@ -16,36 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.bobek.metronome.data
+package com.bobek.metronome.view.adapter
 
-import androidx.databinding.InverseMethod
+import android.widget.Button
+import androidx.databinding.BindingAdapter
+import com.bobek.metronome.R
 
-data class Beats(val value: Int = DEFAULT) {
-
-	init {
-		require(value in MIN..MAX) { "value must be between $MIN and $MAX but was $value" }
+object ButtonAdapter {
+	
+	@BindingAdapter("playing")
+	@JvmStatic
+	fun setPlaying(button: Button, playing: Boolean) {
+		if (playing) {
+			button.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_pause, 0, 0)
+			button.text = "停止"
+		} else {
+			button.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_play_arrow, 0, 0)
+			button.text = "开始"
+		}
 	}
 
-	companion object {
-		const val MIN = 1
-		const val MAX = 8
-		const val DEFAULT = 4
-
-		@InverseMethod("floatToBeats")
-		@JvmStatic
-		fun beatsToFloat(beats: Beats): Float = beats.value.toFloat()
-		
-		@JvmStatic
-		fun floatToBeats(float: Float): Beats = Beats(float.toInt())
-
-
-		@InverseMethod("beatsNormalInverse")
-		@JvmStatic
-		fun beatsNormal(beats: Beats): Int = beats.value
-
-		@JvmStatic
-		fun beatsNormalInverse(int: Int): Beats = Beats(int)
-
-	}
 }
-

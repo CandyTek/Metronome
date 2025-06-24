@@ -25,7 +25,7 @@
             android:bottom="2dp"
             android:left="2dp">
         <shape android:shape="oval">
-            <solid android:color="?attr/colorTertiaryContainer" />
+            <solid android:color="@color/md_theme_dark_tertiaryContainer" />
         </shape>
     </item>
 </layer-list>

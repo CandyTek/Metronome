@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="metronome">节拍器</string>
+    <string name="metronome">悬浮节拍器</string>
     <string name="beats_label">拍子</string>
     <string name="beats_slider_description">设置拍子的滑块</string>
     <string name="subdivisions_label">小节</string>
@@ -35,12 +35,12 @@
     <string name="loading_indicator_description">显示应用程序正在加载内容</string>
     <string name="ok">确定</string>
     <string name="no_thanks">不需要</string>
-    <string name="tempo_marking_largo">Largo</string>
-    <string name="tempo_marking_larghetto">Larghetto</string>
-    <string name="tempo_marking_adagio">Adagio</string>
-    <string name="tempo_marking_andante">Andante</string>
-    <string name="tempo_marking_moderato">Moderato</string>
-    <string name="tempo_marking_allegro">Allegro</string>
-    <string name="tempo_marking_presto">Presto</string>
-    <string name="tempo_marking_prestissimo">Prestissimo</string>
+    <string name="tempo_marking_largo">Largo（广板 - 非常慢）</string>
+    <string name="tempo_marking_larghetto">Larghetto（小广板 - 稍慢）</string>
+    <string name="tempo_marking_adagio">Adagio（柔板 - 慢速）</string>
+    <string name="tempo_marking_andante">Andante（行板 - 稍慢）</string>
+    <string name="tempo_marking_moderato">Moderato（中板 - 中等速度）</string>
+    <string name="tempo_marking_allegro">Allegro（快板 - 明快）</string>
+    <string name="tempo_marking_presto">Presto（急板 - 非常快）</string>
+    <string name="tempo_marking_prestissimo">Prestissimo（急促板 - 极快）</string>
 </resources>

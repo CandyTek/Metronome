@@ -37,5 +37,13 @@ data class Subdivisions(val value: Int = DEFAULT) {
 
         @JvmStatic
         fun floatToSubdivisions(float: Float): Subdivisions = Subdivisions(float.toInt())
+        
+        
+        @InverseMethod("subdivisionsNormalInverse")
+        @JvmStatic
+        fun subdivisionsNormal(subdivisions: Subdivisions): Int = subdivisions.value
+
+        @JvmStatic
+        fun subdivisionsNormalInverse(int: Int): Subdivisions = Subdivisions(int)
     }
 }

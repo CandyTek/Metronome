@@ -39,5 +39,13 @@ data class Tempo(val value: Int = DEFAULT) {
 
         @JvmStatic
         fun floatToTempo(float: Float): Tempo = Tempo(float.toInt())
+        
+        
+        @InverseMethod("tempoNormalInverse")
+        @JvmStatic
+        fun tempoNormal(tempo: Tempo): Int = tempo.value
+
+        @JvmStatic
+        fun tempoNormalInverse(int: Int): Tempo = Tempo(int)
     }
 }

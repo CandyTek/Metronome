@@ -52,7 +52,7 @@ import com.bobek.metronome.view.component.TickVisualization
 import com.bobek.metronome.view.model.MetronomeViewModel
 
 private const val TAG = "MetronomeFragment"
-private const val LARGE_TEMPO_CHANGE_SIZE = 10
+const val LARGE_TEMPO_CHANGE_SIZE = 10
 
 class MetronomeFragment : Fragment() {
 

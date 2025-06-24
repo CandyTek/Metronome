@@ -35,11 +35,12 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.bobek.metronome"
+        applicationId = "com.ricecake.metronome"
         minSdk = 21
-        targetSdk = 36
-        versionCode = 19
-        versionName = "1.7.1"
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk = 25
+        versionCode = 1
+        versionName = "1.0.20250612"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

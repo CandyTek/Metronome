@@ -38,6 +38,6 @@ dependencyResolutionManagement {
 	}
 }
 
-rootProject.name = "Metronome"
+rootProject.name = "RcFloatMetronome"
 
 include(":app")

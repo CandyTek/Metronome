@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ This file is part of Metronome.
+  ~ Copyright (C) 2023 Philipp Bobek <philipp.bobek@mailbox.org>
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Metronome is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:bind="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:context=".MetronomeFragment"
+	>
+
+	<LinearLayout
+		android:orientation="vertical"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@drawable/sh_ra_16"
+		>
+
+		<com.bobek.metronome.view.TouchLinearLayout
+			android:layout_width="match_parent"
+			android:id="@+id/linTouchMoveBar"
+			android:layout_height="48dp"
+			android:orientation="horizontal"
+			android:gravity="end"
+			android:baselineAligned="false"
+			>
+
+			<Button
+				android:id="@+id/btnExpand"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:background="@null"
+				android:drawableTop="@{metronome.isHidePanel ? @drawable/ic_expand_right : @drawable/ic_expand_left}"
+				android:elevation="0dp"
+				android:onClick="@{() -> metronome.togglePanelVisibility()}"
+				android:gravity="center_vertical"
+				android:minWidth="0dp"
+				android:minHeight="0dp"
+				android:paddingTop="12dp"
+				android:stateListAnimator="@null"
+				android:text=""
+				/>
+			
+			<Button
+				android:id="@+id/btnQuit"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:background="@null"
+				android:drawableTop="@drawable/baseline_close_24"
+				android:visibility="@{metronome.isHidePanel ? View.GONE : View.VISIBLE}"
+				android:elevation="0dp"
+				android:gravity="center_vertical"
+				android:minWidth="0dp"
+				android:minHeight="0dp"
+				android:paddingTop="12dp"
+				android:stateListAnimator="@null"
+				android:text=""
+				/>
+		</com.bobek.metronome.view.TouchLinearLayout>
+
+
+		<ProgressBar
+			android:id="@+id/loading_indicator"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:contentDescription="@string/loading_indicator_description"
+			android:indeterminate="true"
+			android:visibility="gone"
+			app:layout_anchor="@id/content"
+			app:layout_anchorGravity="center"
+			/>
+		<!--                 android:visibility="@{metronome.connected ? View.INVISIBLE : View.VISIBLE}" -->
+
+		<include
+			android:id="@+id/content"
+			layout="@layout/content_metronome_float"
+			android:visibility="@{metronome.isHidePanel ? View.GONE : View.VISIBLE}"
+			bind:metronome="@{metronome}"
+			
+			/>
+<!-- 		android:visibility="@{metronome.connected ? View.VISIBLE : View.INVISIBLE}" -->
+
+	</LinearLayout>
+
+	<data>
+
+		<import type="android.view.View" />
+
+		<variable
+			name="metronome"
+			type="com.bobek.metronome.view.model.MetronomeViewModel"
+			/>
+	</data>
+
+</layout>
