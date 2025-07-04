@@ -12,6 +12,18 @@
 		android:orientation="vertical"
 		android:gravity="center_horizontal"
 		>
+		<TextView
+			android:layout_gravity="top"
+			android:id="@+id/weight_label_text"
+			android:layout_width="50dp"
+			android:layout_height="44dp"
+			android:layout_marginStart="@dimen/slider_label_margin"
+			android:labelFor="@id/beats_edit"
+			android:text="轻重"
+			app:layout_constraintBottom_toTopOf="@+id/beats_slider"
+			android:layout_marginBottom="-44dp"
+			app:layout_constraintStart_toStartOf="@id/beats_slider"
+			/>
 
 		<LinearLayout
 			android:baselineAligned="false"
@@ -22,7 +34,7 @@
 			app:layout_constraintTop_toTopOf="parent"
 			android:orientation="horizontal"
 			>
-
+			
 			<com.bobek.metronome.view.component.TickVisualization
 				android:id="@+id/tick_visualization_1"
 				android:layout_width="@dimen/beat_visualization_size"

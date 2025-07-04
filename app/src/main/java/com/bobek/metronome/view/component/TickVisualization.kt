@@ -23,11 +23,11 @@ import android.graphics.drawable.AnimationDrawable
 import android.util.AttributeSet
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
-import androidx.constraintlayout.widget.ConstraintLayout
+import android.widget.FrameLayout
 import androidx.databinding.InverseBindingListener
 import com.bobek.metronome.databinding.TickVisualizationBinding
 
-class TickVisualization(context: Context, attributes: AttributeSet) : ConstraintLayout(context, attributes) {
+class TickVisualization(context: Context, attributes: AttributeSet) : FrameLayout(context, attributes) {
 
     private val binding: TickVisualizationBinding
 
