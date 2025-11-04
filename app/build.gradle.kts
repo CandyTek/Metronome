@@ -102,3 +102,10 @@ dependencies {
     androidTestImplementation(libs.androidx.rules)
     androidTestImplementation(libs.screengrab)
 }
+android.applicationVariants.configureEach {
+    outputs.all {
+        if (this is com.android.build.gradle.internal.api.ApkVariantOutputImpl) {
+                this.outputFileName = "悬浮节拍器${versionName}.apk"
+        }
+    }
+}
